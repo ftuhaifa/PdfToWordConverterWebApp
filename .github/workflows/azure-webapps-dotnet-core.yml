@@ -22,7 +22,7 @@
 name: Build and deploy ASP.Net Core app to an Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: your-app-name           # Replace with your Azure Web App name
+  AZURE_WEBAPP_NAME: pdf-to-word-app            # Replace with your Azure Web App name
   DOTNET_VERSION: '5.0.x'                    # Or the exact .NET version
   PROJECT_PATH: PdfToWordConverterWebApp
   PROJECT_FILE: PdfToWordConverterWebApp.csproj
