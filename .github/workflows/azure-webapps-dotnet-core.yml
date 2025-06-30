@@ -23,7 +23,7 @@ name: Build and deploy ASP.Net Core app to an Azure Web App
 
 env:
   AZURE_WEBAPP_NAME: pdf-to-word-app            # Replace with your Azure Web App name
-  DOTNET_VERSION: '5.0.x'                    # Or the exact .NET version
+  DOTNET_VERSION: '8.0.x'                     # Or the exact .NET version
   PROJECT_PATH: PdfToWordConverterWebApp
   PROJECT_FILE: PdfToWordConverterWebApp.csproj
 
@@ -62,7 +62,8 @@ jobs:
         run: dotnet nuget add source nuget --name local
 
       - name: Restore dependencies
-        run: dotnet restore PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj --source local --source "https://api.nuget.org/v3/index.json"
+        run: dotnet restore PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj
+
 
       - name: Build with dotnet
         run: dotnet build PdfToWordConverterWebApp.csproj --configuration Release
