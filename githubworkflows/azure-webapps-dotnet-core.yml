@@ -17,39 +17,78 @@
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
 
-name: Build and deploy ASP.NET Core app to Azure Web App
+# This workflow will build and push a .NET Core app to an Azure Web App when a commit is pushed to your default branch.
+
+name: Build and deploy ASP.Net Core app to an Azure Web App
+
+env:
+  AZURE_WEBAPP_NAME: pdf-to-word-app        # Replace with your Azure Web App name
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH: PdfToWordConverterWebApp
+  PROJECT_FILE: PdfToWordConverterWebApp.csproj
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Restore dependencies
-      run: dotnet restore PdfToWordConverterWebApp.csproj
+      - name: Set up NuGet caching
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-    - name: Build with dotnet
-      run: dotnet build PdfToWordConverterWebApp.csproj --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} --source "https://api.nuget.org/v3/index.json"
 
-    - name: Publish with dotnet
-      run: dotnet publish PdfToWordConverterWebApp.csproj --configuration Release --output ./publish
+      - name: Build with dotnet
+        run: dotnet build ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} --configuration Release
 
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: pdf-to-word-app  # ✅ replace with your Azure App Service name if different
-        slot-name: production
-        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-        package: ./publish
+      - name: Publish app
+        run: dotnet publish ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} -c Release -o "${{ github.workspace }}/myapp"
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-app
+          path: ${{ github.workspace }}/myapp
+
+  deploy:
+    needs: build
+    runs-on: windows-latest
+    environment:
+      name: 'Development'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: dotnet-app
+          path: ./myapp
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./myapp
