@@ -22,8 +22,8 @@
 name: Build and deploy ASP.Net Core app to an Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: pdf-to-word-app            # Replace with your Azure Web App name
-  DOTNET_VERSION: '8.0.x'                     # Or the exact .NET version
+  AZURE_WEBAPP_NAME: pdf-to-word-app        # Replace with your Azure Web App name
+  DOTNET_VERSION: '8.0.x'
   PROJECT_PATH: PdfToWordConverterWebApp
   PROJECT_FILE: PdfToWordConverterWebApp.csproj
 
@@ -56,40 +56,29 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-
-
-
       - name: Restore dependencies
-        run: dotnet restore PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj --source "https://api.nuget.org/v3/index.json"
-
-
+        run: dotnet restore ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} --source "https://api.nuget.org/v3/index.json"
 
       - name: Build with dotnet
-        run: dotnet build PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj --configuration Release
-
+        run: dotnet build ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} --configuration Release
 
       - name: Publish app
-        run: dotnet publish PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj -c Release -o "${{ github.workspace }}/myapp"
-
+        run: dotnet publish ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} -c Release -o "${{ github.workspace }}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
+          name: dotnet-app
+          path: ${{ github.workspace }}/myapp
 
   deploy:
-    permissions:
-      contents: none
-    runs-on: windows-latest
     needs: build
+    runs-on: windows-latest
     environment:
       name: 'Development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
@@ -103,4 +92,3 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./myapp
-
