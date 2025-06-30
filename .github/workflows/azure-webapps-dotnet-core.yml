@@ -60,7 +60,8 @@ jobs:
 
 
       - name: Restore dependencies
-        run: dotnet restore PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj
+        run: dotnet restore PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj --source "https://api.nuget.org/v3/index.json"
+
 
 
       - name: Build with dotnet
