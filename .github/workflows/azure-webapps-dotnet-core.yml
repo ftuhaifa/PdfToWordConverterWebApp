@@ -57,7 +57,7 @@ jobs:
         run: dotnet nuget add source ./ --name local
 
       - name: Restore dependencies
-        run: dotnet restore PdfToWordConverterWebApp.csproj --source ./ --source https://api.nuget.org/v3/index.json
+        run: dotnet restore PdfToWordConverterWebApp.csproj --source https://api.nuget.org/v3/index.json
 
       - name: Build with dotnet
         run: dotnet build PdfToWordConverterWebApp.csproj --configuration Release
