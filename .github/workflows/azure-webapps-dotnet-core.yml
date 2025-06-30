@@ -56,23 +56,26 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+
+
       - name: Add local NuGet source
         run: dotnet nuget add source nuget --name local
 
       - name: Restore dependencies
-        run: dotnet restore ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} --source nuget --source https://api.nuget.org/v3/index.json
+        run: dotnet restore PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj --source local --source "https://api.nuget.org/v3/index.json"
 
       - name: Build with dotnet
-        run: dotnet build ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} --configuration Release
+        run: dotnet build PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj --configuration Release
 
       - name: Publish app
-        run: dotnet publish ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+
 
   deploy:
     permissions:
