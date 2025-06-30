@@ -24,10 +24,11 @@ jobs:
           dotnet-version: 'v8.0'
 
       - name: Build with dotnet
-        run: dotnet build ${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} --configuration Release
+        run: dotnet build PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
