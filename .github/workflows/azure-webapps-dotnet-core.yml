@@ -58,15 +58,14 @@ jobs:
 
 
 
-      - name: Add local NuGet source
-        run: dotnet nuget add source nuget --name local
 
       - name: Restore dependencies
         run: dotnet restore PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj
 
 
       - name: Build with dotnet
-        run: dotnet build PdfToWordConverterWebApp.csproj --configuration Release
+        run: dotnet build PdfToWordConverterWebApp/PdfToWordConverterWebApp.csproj --configuration Release
+
 
       - name: Publish app
         run: dotnet publish PdfToWordConverterWebApp.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
